@@ -1,3 +1,11 @@
+"""
+HID Injection Module.
+
+This module manages the low-level injection of keystrokes into the
+USB Gadget HID interface (typically /dev/hidg0). It supports
+different keyboard layouts (US, German ISO) and handles modifier keys.
+"""
+
 import os
 import time
 import random
@@ -42,7 +50,9 @@ MOD_RALT = 0x40 # AltGr
 MOD_RGUI = 0x80
 
 class Layout:
+    """Base class for Keyboard Layouts."""
     def __init__(self):
+        """Initializes an empty layout mapping."""
         self.mapping: Dict[str, Tuple[int, int]] = {}
 
     def get_scancode(self, char: str) -> Tuple[int, int]:
@@ -54,6 +64,7 @@ class USLayout(Layout):
     US QWERTY Keyboard Layout Mapping.
     """
     def __init__(self):
+        """Initializes the US QWERTY mapping."""
         super().__init__()
         # Basic lowercase (a-z)
         self.mapping['a'] = (MOD_NONE, 0x04)
@@ -145,6 +156,7 @@ class GermanISO(Layout):
     German ISO Keyboard Layout Mapping.
     """
     def __init__(self):
+        """Initializes the German ISO (QWERTZ) mapping."""
         super().__init__()
         # Basic lowercase (a-z)
         # Note: In German layout, Z and Y are swapped compared to US QWERTY

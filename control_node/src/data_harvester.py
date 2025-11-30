@@ -1,3 +1,10 @@
+"""
+Data Harvesting and Persistence Module.
+
+This module handles the structured parsing of raw text output (e.g., directory listings)
+and saves the results to the logs directory. It also maintains a rolling OCR log.
+"""
+
 import os
 import json
 import time
