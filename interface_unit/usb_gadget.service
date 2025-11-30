@@ -1,0 +1,13 @@
+[Unit]
+Description=Vision-HID-Bridge USB Gadget Setup
+After=systemd-modules-load.service
+ConditionPathExists=/sys/kernel/config/usb_gadget
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/setup_gadget.sh
+ExecStop=/bin/sh -c 'echo "" > /sys/kernel/config/usb_gadget/vision_bridge/UDC; rmdir /sys/kernel/config/usb_gadget/vision_bridge/configs/c.1/strings/0x409; rmdir /sys/kernel/config/usb_gadget/vision_bridge/configs/c.1/functions/hid.usb0; rmdir /sys/kernel/config/usb_gadget/vision_bridge/configs/c.1; rmdir /sys/kernel/config/usb_gadget/vision_bridge/strings/0x409; rmdir /sys/kernel/config/usb_gadget/vision_bridge'
+
+[Install]
+WantedBy=multi-user.target

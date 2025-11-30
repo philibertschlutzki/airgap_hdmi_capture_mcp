@@ -1,0 +1,4 @@
+fastmcp
+opencv-python-headless
+pytesseract
+numpy
