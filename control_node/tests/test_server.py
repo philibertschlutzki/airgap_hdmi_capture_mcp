@@ -40,7 +40,16 @@ class TestServer(unittest.TestCase):
         self.assertEqual(server.latest_screen_base64, "base64data")
 
     def test_tool_inject_keystrokes(self):
-        res = server.inject_keystrokes_impl("echo hello")
+        # We need to make sure verify logic passes.
+        # It waits for OCR to contain text.
+        self.mock_pipeline.extract_text.return_value = "echo hello"
+
+        res = server.inject_keystrokes_impl("echo hello", verify=True)
+        self.assertIn("Successfully typed", res)
+        self.mock_injector.type_text.assert_called()
+
+    def test_tool_inject_keystrokes_no_verify(self):
+        res = server.inject_keystrokes_impl("echo hello", verify=False)
         self.assertIn("Successfully typed", res)
         self.mock_injector.type_text.assert_called()
 
