@@ -1,0 +1,55 @@
+--- 17:59:45 ---
+C:\Users\Admin>echo test_verification
+
+--- 17:59:47 ---
+C:\Users\Admin>echo test_verification
+C:\Users\Admin>
+Volume in drive C has no label.
+ Directory of C:\Users\Admin
+
+01/01/2023  12:00 PM    <DIR>          .
+01/01/2023  12:00 PM    <DIR>          ..
+01/01/2023  12:00 PM                10 file1.txt
+01/01/2023  12:00 PM                20 config.json
+               2 File(s)             30 bytes
+dir "."
+
+--- 18:01:06 ---
+C:\Windows\system32>
+
+--- 18:01:07 ---
+C:\Windows\system32>
+
+--- 18:01:08 ---
+C:\Windows\system32>
+
+--- 18:01:10 ---
+C:\Windows\system32>
+
+--- 18:01:43 ---
+C:\Windows\system32>
+
+--- 18:01:44 ---
+echo hello
+
+--- 18:05:06 ---
+C:\Users\Admin>echo test_verification
+
+--- 18:05:08 ---
+C:\Users\Admin>echo test_verification
+C:\Users\Admin>
+Volume in drive C has no label.
+ Directory of C:\Users\Admin
+
+01/01/2023  12:00 PM    <DIR>          .
+01/01/2023  12:00 PM    <DIR>          ..
+01/01/2023  12:00 PM                10 file1.txt
+01/01/2023  12:00 PM                20 config with spaces.json
+               2 File(s)             30 bytes
+dir "."
+
+--- 18:05:24 ---
+C:\Windows\system32>
+
+--- 18:05:25 ---
+echo hello
