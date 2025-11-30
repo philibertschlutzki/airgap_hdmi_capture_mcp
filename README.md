@@ -83,8 +83,10 @@ Start the server to expose tools to your LLM.
 
 ```bash
 # From the root directory
-python3 -m control_node.src.server
+python3 -m control_node.src.main
 ```
+
+> **Note:** For detailed instructions on setting up VLM Integration (Ollama) and configuration, please refer to [manual_mcp.md](manual_mcp.md).
 
 ### Tools Available
 *   `capture_screen(mode="ocr_text")`: Returns the text on screen.

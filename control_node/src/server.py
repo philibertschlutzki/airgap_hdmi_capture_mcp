@@ -1,3 +1,11 @@
+"""
+MCP Server Implementation for Vision-HID-Bridge.
+
+This module defines the Model Context Protocol (MCP) server, exposing tools
+and resources to control the target system via the hardware interface.
+It coordinates between the Vision pipeline and HID injection logic.
+"""
+
 from fastmcp import FastMCP
 from typing import List, Optional
 import time
@@ -7,11 +15,13 @@ try:
     from .hid import KeyInjector
     from .layout_detection import LayoutDetector
     from .data_harvester import DataHarvester
+    from .vlm_client import VLMClient
 except ImportError:
     from vision import ScreenCapture, VisionPipeline
     from hid import KeyInjector
     from layout_detection import LayoutDetector
     from data_harvester import DataHarvester
+    from vlm_client import VLMClient
 
 # Initialize Global Components
 injector = KeyInjector()
@@ -19,6 +29,7 @@ capture = ScreenCapture()
 pipeline = VisionPipeline()
 layout_detector = LayoutDetector(injector, lambda mode: capture_screen_impl(mode=mode))
 harvester = DataHarvester()
+vlm = VLMClient()
 
 # Configuration
 ENABLE_FULL_LOGGING = True
@@ -90,8 +101,14 @@ def capture_screen_impl(mode: str = "ocr_text", region: Optional[List[int]] = No
 
             return text
 
+        elif mode == "analysis":
+            # Feature 2: VLM Integration
+            # We reuse the cached base64 string if fresh, or encode the new frame
+            # (pipeline.encode_image was already called above updating latest_screen_base64)
+            return vlm.analyze_image(latest_screen_base64)
+
         else:
-            return "Error: Unknown mode"
+            return "Error: Unknown mode. Supported: raw_base64, ocr_text, analysis"
 
     except Exception as e:
         return f"Error capturing screen: {str(e)}"
@@ -172,9 +189,21 @@ def execute_shortcut_impl(modifiers: List[str], key: str) -> str:
         return f"Error executing shortcut: {str(e)}"
 
 def get_latest_screen_impl() -> str:
+    """
+    Retrieves the most recently captured screen image (cached).
+
+    Returns:
+        str: Base64 encoded JPEG image.
+    """
     return latest_screen_base64
 
 def get_ocr_logs_impl() -> str:
+    """
+    Retrieves the recent history of OCR text logs.
+
+    Returns:
+        str: A single string containing the last 100 lines of recognized text.
+    """
     return "\n".join(latest_ocr_log)
 
 def scan_directory_impl(path: str) -> str:
@@ -296,5 +325,10 @@ def detect_layout_at_startup():
         print(f"Startup layout detection failed: {e}")
 
 def run():
+    """
+    Main entry point for the MCP Server.
+
+    Performs startup routines (layout detection) and starts the FastMCP server.
+    """
     detect_layout_at_startup()
     mcp.run()

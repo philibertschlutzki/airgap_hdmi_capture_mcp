@@ -1,3 +1,10 @@
+"""
+Vision Module for Screen Capture and Processing.
+
+This module handles the interaction with the USB HDMI capture card and
+provides image processing pipelines for OCR and visual analysis.
+"""
+
 import time
 import base64
 import logging
@@ -98,6 +105,7 @@ class VisionPipeline:
     Encapsulates image processing logic for Optical Character Recognition (OCR).
     """
     def __init__(self):
+        """Initializes the vision pipeline."""
         pass
 
     def preprocess_for_ocr(self, image: np.ndarray) -> np.ndarray:
