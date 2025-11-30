@@ -29,7 +29,11 @@ class LayoutDetector:
         Returns:
             str: The detected layout code ("US", "DE", or "UNKNOWN").
         """
+<<<<<<< HEAD
         print("Starting Keyboard Layout Detection...")
+=======
+        logging.info("Starting Keyboard Layout Detection...")
+>>>>>>> refs/remotes/origin/feature/docs-and-verification
 
         # We need to type characters that vary significantly between layouts.
         # US vs DE:
@@ -45,16 +49,27 @@ class LayoutDetector:
         time.sleep(1.0)
 
         text = self.capture_func(mode="ocr_text")
+<<<<<<< HEAD
         print(f"DEBUG: Layout Detect 'z' -> Saw '{text}'")
+=======
+        logging.debug(f"Layout Detect 'z' -> Saw '{text}'")
+>>>>>>> refs/remotes/origin/feature/docs-and-verification
 
         if 'y' in text.lower():
             # We sent 'z' (pos Z), but got 'y'.
             # This implies the target interprets that position as 'y'.
             # That matches QWERTZ (DE).
+<<<<<<< HEAD
             print("Detected Layout: DE (QWERTZ)")
             return "DE"
         elif 'z' in text.lower():
             print("Detected Layout: US/UK (QWERTY)")
+=======
+            logging.info("Detected Layout: DE (QWERTZ)")
+            return "DE"
+        elif 'z' in text.lower():
+            logging.info("Detected Layout: US/UK (QWERTY)")
+>>>>>>> refs/remotes/origin/feature/docs-and-verification
             return "US" # Could be UK too
 
         # Fallback or inconclusive
@@ -69,6 +84,7 @@ class LayoutDetector:
         """
         if layout_code == "DE":
             from .hid import GermanISO
+<<<<<<< HEAD
             print("Applying GermanISO Layout")
             self.injector.layout = GermanISO()
         elif layout_code == "US":
@@ -77,3 +93,13 @@ class LayoutDetector:
              self.injector.layout = USLayout()
         else:
             print(f"Unknown layout code {layout_code}, keeping current.")
+=======
+            logging.info("Applying GermanISO Layout")
+            self.injector.layout = GermanISO()
+        elif layout_code == "US":
+             from .hid import USLayout
+             logging.info("Applying US Layout")
+             self.injector.layout = USLayout()
+        else:
+            logging.warning(f"Unknown layout code {layout_code}, keeping current.")
+>>>>>>> refs/remotes/origin/feature/docs-and-verification

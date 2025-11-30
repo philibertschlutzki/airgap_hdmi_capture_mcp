@@ -75,3 +75,34 @@ Volume in drive C has no label.
 01/01/2023  12:00 PM                20 config with spaces.json
                2 File(s)             30 bytes
 dir "."
+<<<<<<< HEAD
+=======
+
+--- 18:44:04 ---
+C:\Windows\system32>
+
+--- 18:44:05 ---
+echo hello
+
+--- 18:44:23 ---
+C:\Users\Admin>echo test_verification
+
+--- 18:44:25 ---
+C:\Users\Admin>echo test_verification
+C:\Users\Admin>
+Volume in drive C has no label.
+ Directory of C:\Users\Admin
+
+01/01/2023  12:00 PM    <DIR>          .
+01/01/2023  12:00 PM    <DIR>          ..
+01/01/2023  12:00 PM                10 file1.txt
+01/01/2023  12:00 PM                20 config with spaces.json
+               2 File(s)             30 bytes
+dir "."
+
+--- 19:03:40 ---
+C:\Windows\system32>
+
+--- 19:03:41 ---
+echo hello
+>>>>>>> refs/remotes/origin/feature/docs-and-verification
