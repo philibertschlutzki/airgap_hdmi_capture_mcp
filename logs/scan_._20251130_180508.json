@@ -1,0 +1,16 @@
+{
+  "directories": [],
+  "files": [
+    {
+      "name": "file1.txt",
+      "size": 10,
+      "type": "file"
+    },
+    {
+      "name": "config with spaces.json",
+      "size": 20,
+      "type": "file"
+    }
+  ],
+  "raw_text": "C:\\Users\\Admin>echo test_verification\nC:\\Users\\Admin>\nVolume in drive C has no label.\n Directory of C:\\Users\\Admin\n\n01/01/2023  12:00 PM    <DIR>          .\n01/01/2023  12:00 PM    <DIR>          ..\n01/01/2023  12:00 PM                10 file1.txt\n01/01/2023  12:00 PM                20 config with spaces.json\n               2 File(s)             30 bytes\ndir \".\""
+}

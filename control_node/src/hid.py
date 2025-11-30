@@ -49,6 +49,97 @@ class Layout:
         """Returns (modifier, scancode) for a given character."""
         return self.mapping.get(char, (MOD_NONE, 0x00))
 
+class USLayout(Layout):
+    """
+    US QWERTY Keyboard Layout Mapping.
+    """
+    def __init__(self):
+        super().__init__()
+        # Basic lowercase (a-z)
+        self.mapping['a'] = (MOD_NONE, 0x04)
+        self.mapping['b'] = (MOD_NONE, 0x05)
+        self.mapping['c'] = (MOD_NONE, 0x06)
+        self.mapping['d'] = (MOD_NONE, 0x07)
+        self.mapping['e'] = (MOD_NONE, 0x08)
+        self.mapping['f'] = (MOD_NONE, 0x09)
+        self.mapping['g'] = (MOD_NONE, 0x0A)
+        self.mapping['h'] = (MOD_NONE, 0x0B)
+        self.mapping['i'] = (MOD_NONE, 0x0C)
+        self.mapping['j'] = (MOD_NONE, 0x0D)
+        self.mapping['k'] = (MOD_NONE, 0x0E)
+        self.mapping['l'] = (MOD_NONE, 0x0F)
+        self.mapping['m'] = (MOD_NONE, 0x10)
+        self.mapping['n'] = (MOD_NONE, 0x11)
+        self.mapping['o'] = (MOD_NONE, 0x12)
+        self.mapping['p'] = (MOD_NONE, 0x13)
+        self.mapping['q'] = (MOD_NONE, 0x14)
+        self.mapping['r'] = (MOD_NONE, 0x15)
+        self.mapping['s'] = (MOD_NONE, 0x16)
+        self.mapping['t'] = (MOD_NONE, 0x17)
+        self.mapping['u'] = (MOD_NONE, 0x18)
+        self.mapping['v'] = (MOD_NONE, 0x19)
+        self.mapping['w'] = (MOD_NONE, 0x1A)
+        self.mapping['x'] = (MOD_NONE, 0x1B)
+        self.mapping['y'] = (MOD_NONE, 0x1C)
+        self.mapping['z'] = (MOD_NONE, 0x1D)
+
+        # Numbers
+        self.mapping['1'] = (MOD_NONE, 0x1E)
+        self.mapping['2'] = (MOD_NONE, 0x1F)
+        self.mapping['3'] = (MOD_NONE, 0x20)
+        self.mapping['4'] = (MOD_NONE, 0x21)
+        self.mapping['5'] = (MOD_NONE, 0x22)
+        self.mapping['6'] = (MOD_NONE, 0x23)
+        self.mapping['7'] = (MOD_NONE, 0x24)
+        self.mapping['8'] = (MOD_NONE, 0x25)
+        self.mapping['9'] = (MOD_NONE, 0x26)
+        self.mapping['0'] = (MOD_NONE, 0x27)
+
+        # Uppercase (Shift)
+        for char, (mod, code) in list(self.mapping.items()):
+            if char.isalpha():
+                self.mapping[char.upper()] = (MOD_LSHIFT, code)
+
+        # Special Characters US
+        self.mapping['!'] = (MOD_LSHIFT, 0x1E)
+        self.mapping['@'] = (MOD_LSHIFT, 0x1F)
+        self.mapping['#'] = (MOD_LSHIFT, 0x20)
+        self.mapping['$'] = (MOD_LSHIFT, 0x21)
+        self.mapping['%'] = (MOD_LSHIFT, 0x22)
+        self.mapping['^'] = (MOD_LSHIFT, 0x23)
+        self.mapping['&'] = (MOD_LSHIFT, 0x24)
+        self.mapping['*'] = (MOD_LSHIFT, 0x25)
+        self.mapping['('] = (MOD_LSHIFT, 0x26)
+        self.mapping[')'] = (MOD_LSHIFT, 0x27)
+
+        self.mapping['-'] = (MOD_NONE, 0x2D)
+        self.mapping['_'] = (MOD_LSHIFT, 0x2D)
+        self.mapping['='] = (MOD_NONE, 0x2E)
+        self.mapping['+'] = (MOD_LSHIFT, 0x2E)
+        self.mapping['['] = (MOD_NONE, 0x2F)
+        self.mapping['{'] = (MOD_LSHIFT, 0x2F)
+        self.mapping[']'] = (MOD_NONE, 0x30)
+        self.mapping['}'] = (MOD_LSHIFT, 0x30)
+        self.mapping['\\'] = (MOD_NONE, 0x31)
+        self.mapping['|'] = (MOD_LSHIFT, 0x31)
+        self.mapping[';'] = (MOD_NONE, 0x33)
+        self.mapping[':'] = (MOD_LSHIFT, 0x33)
+        self.mapping["'"] = (MOD_NONE, 0x34)
+        self.mapping['"'] = (MOD_LSHIFT, 0x34)
+        self.mapping['`'] = (MOD_NONE, 0x35)
+        self.mapping['~'] = (MOD_LSHIFT, 0x35)
+        self.mapping[','] = (MOD_NONE, 0x36)
+        self.mapping['<'] = (MOD_LSHIFT, 0x36)
+        self.mapping['.'] = (MOD_NONE, 0x37)
+        self.mapping['>'] = (MOD_LSHIFT, 0x37)
+        self.mapping['/'] = (MOD_NONE, 0x38)
+        self.mapping['?'] = (MOD_LSHIFT, 0x38)
+
+        # Other symbols
+        self.mapping[' '] = (MOD_NONE, SCANCODE_SPACE)
+        self.mapping['\n'] = (MOD_NONE, SCANCODE_ENTER)
+        self.mapping['\t'] = (MOD_NONE, SCANCODE_TAB)
+
 class GermanISO(Layout):
     """
     German ISO Keyboard Layout Mapping.
@@ -161,12 +252,24 @@ class GermanISO(Layout):
         self.mapping['~'] = (MOD_RALT, 0x30) # AltGr + + (Key right of Ü)
 
 class KeyInjector:
+    """
+    Handles the low-level injection of keystrokes into the USB HID gadget.
+
+    This class manages the connection to the OS HID device file (e.g., /dev/hidg0),
+    formats the USB reports, and handles the timing of key presses.
+    """
     def __init__(self, device_path="/dev/hidg0", layout: Layout = GermanISO()):
+        """
+        Args:
+            device_path (str): Path to the HID gadget character device.
+            layout (Layout): The keyboard layout object (USLayout or GermanISO).
+        """
         self.device_path = device_path
         self.layout = layout
         self._check_device()
 
     def _check_device(self):
+        """Checks if the HID device file exists; enables simulation mode if not."""
         if not os.path.exists(self.device_path):
             print(f"Warning: HID device {self.device_path} not found. Running in simulation mode.")
             self.simulation_mode = True
@@ -174,7 +277,16 @@ class KeyInjector:
             self.simulation_mode = False
 
     def _send_report(self, modifiers: int, key_code: int):
-        # Report format: [Modifier, Reserved, Key1, Key2, Key3, Key4, Key5, Key6]
+        """
+        Sends an 8-byte HID report to the kernel.
+
+        Report Format:
+        [Modifier, Reserved, Key1, Key2, Key3, Key4, Key5, Key6]
+
+        Args:
+            modifiers (int): Bitmask for modifier keys (Ctrl, Shift, etc.).
+            key_code (int): The USB HID usage ID for the key.
+        """
         # We only use Key1 for simplicity (typing one char at a time)
         report = struct.pack('BBBBBBBB', modifiers, 0, key_code, 0, 0, 0, 0, 0)
 
@@ -190,10 +302,19 @@ class KeyInjector:
                 print(f"Error writing to HID device: {e}")
 
     def release_all(self):
+        """Sends an empty report to release all keys."""
         self._send_report(0, 0)
 
     def press_key(self, char: str):
-        """Presses and releases a single character key."""
+        """
+        Presses and releases a single character key.
+
+        This method looks up the scancode for the character in the current layout,
+        sends the press report, waits a random small duration, and then sends the release report.
+
+        Args:
+            char (str): The character to type.
+        """
         modifier, code = self.layout.get_scancode(char)
         if code == 0:
             print(f"Warning: No mapping for character '{char}'")
