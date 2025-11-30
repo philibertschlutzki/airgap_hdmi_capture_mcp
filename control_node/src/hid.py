@@ -252,12 +252,24 @@ class GermanISO(Layout):
         self.mapping['~'] = (MOD_RALT, 0x30) # AltGr + + (Key right of Ü)
 
 class KeyInjector:
+    """
+    Handles the low-level injection of keystrokes into the USB HID gadget.
+
+    This class manages the connection to the OS HID device file (e.g., /dev/hidg0),
+    formats the USB reports, and handles the timing of key presses.
+    """
     def __init__(self, device_path="/dev/hidg0", layout: Layout = GermanISO()):
+        """
+        Args:
+            device_path (str): Path to the HID gadget character device.
+            layout (Layout): The keyboard layout object (USLayout or GermanISO).
+        """
         self.device_path = device_path
         self.layout = layout
         self._check_device()
 
     def _check_device(self):
+        """Checks if the HID device file exists; enables simulation mode if not."""
         if not os.path.exists(self.device_path):
             print(f"Warning: HID device {self.device_path} not found. Running in simulation mode.")
             self.simulation_mode = True
@@ -265,7 +277,16 @@ class KeyInjector:
             self.simulation_mode = False
 
     def _send_report(self, modifiers: int, key_code: int):
-        # Report format: [Modifier, Reserved, Key1, Key2, Key3, Key4, Key5, Key6]
+        """
+        Sends an 8-byte HID report to the kernel.
+
+        Report Format:
+        [Modifier, Reserved, Key1, Key2, Key3, Key4, Key5, Key6]
+
+        Args:
+            modifiers (int): Bitmask for modifier keys (Ctrl, Shift, etc.).
+            key_code (int): The USB HID usage ID for the key.
+        """
         # We only use Key1 for simplicity (typing one char at a time)
         report = struct.pack('BBBBBBBB', modifiers, 0, key_code, 0, 0, 0, 0, 0)
 
@@ -281,10 +302,19 @@ class KeyInjector:
                 print(f"Error writing to HID device: {e}")
 
     def release_all(self):
+        """Sends an empty report to release all keys."""
         self._send_report(0, 0)
 
     def press_key(self, char: str):
-        """Presses and releases a single character key."""
+        """
+        Presses and releases a single character key.
+
+        This method looks up the scancode for the character in the current layout,
+        sends the press report, waits a random small duration, and then sends the release report.
+
+        Args:
+            char (str): The character to type.
+        """
         modifier, code = self.layout.get_scancode(char)
         if code == 0:
             print(f"Warning: No mapping for character '{char}'")

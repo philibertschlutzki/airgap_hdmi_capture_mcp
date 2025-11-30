@@ -14,11 +14,23 @@ except ImportError:
     logging.warning("OpenCV or PyTesseract not found. Vision module will fail if not mocked.")
 
 class ScreenCapture:
+    """
+    Manages video capture from a USB HDMI capture card via OpenCV.
+
+    This class handles opening the video device, configuring it for low latency,
+    and retrieving the latest frame. It includes logic to flush the internal
+    buffer to ensure the captured frame represents the current screen state.
+    """
     def __init__(self, device_id: int = 0):
+        """
+        Args:
+            device_id (int): The video device index (e.g., 0 for /dev/video0).
+        """
         self.device_id = device_id
         self.cap = None
 
     def _open_camera(self):
+        """Initializes the VideoCapture object if not already open."""
         if self.cap is not None and self.cap.isOpened():
             return
 
@@ -35,7 +47,18 @@ class ScreenCapture:
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
     def capture_frame(self) -> np.ndarray:
-        """Captures a single frame from the HDMI input."""
+        """
+        Captures a single frame from the HDMI input.
+
+        This method reads multiple frames from the buffer to ensure the returned
+        frame is the most recent one (flushing the buffer).
+
+        Returns:
+            np.ndarray: The captured image frame.
+
+        Raises:
+            RuntimeError: If capturing fails.
+        """
         self._open_camera()
 
         # Flush buffer to get latest frame (crucial for latency)
@@ -65,18 +88,33 @@ class ScreenCapture:
         return frame
 
     def release(self):
+        """Releases the video device resource."""
         if self.cap:
             self.cap.release()
             self.cap = None
 
 class VisionPipeline:
+    """
+    Encapsulates image processing logic for Optical Character Recognition (OCR).
+    """
     def __init__(self):
         pass
 
     def preprocess_for_ocr(self, image: np.ndarray) -> np.ndarray:
         """
-        Prepares an image for OCR by converting to grayscale, inverting,
-        upscaling, and thresholding.
+        Prepares an image for OCR by applying a sequence of filters.
+
+        Pipeline:
+        1. Convert to Grayscale.
+        2. Invert colors (White text on black background -> Black text on white).
+        3. Upscale (2x) to improve recognition of small terminal fonts.
+        4. Binarize (Thresholding) to create a high-contrast image.
+
+        Args:
+            image (np.ndarray): The raw BGR image from the capture card.
+
+        Returns:
+            np.ndarray: The processed binary image ready for Tesseract.
         """
         if cv2 is None: return image
 
@@ -105,7 +143,18 @@ class VisionPipeline:
             return image
 
     def extract_text(self, image: np.ndarray) -> str:
-        """Runs Tesseract OCR on the image."""
+        """
+        Runs Tesseract OCR on the processed image.
+
+        Uses PSM 6 (Page Segmentation Mode 6), which assumes a single uniform block of text.
+        This is optimized for terminal/CLI outputs.
+
+        Args:
+            image (np.ndarray): The processed image.
+
+        Returns:
+            str: The extracted text.
+        """
         if pytesseract is None:
             return "Error: PyTesseract not installed."
 
@@ -115,7 +164,16 @@ class VisionPipeline:
         return text
 
     def encode_image(self, image: np.ndarray) -> str:
-        """Encodes numpy image to base64 string."""
+        """
+        Encodes a numpy image array to a Base64 string (JPEG format).
+        Useful for transmitting the image over JSON/MCP.
+
+        Args:
+            image (np.ndarray): The image array.
+
+        Returns:
+            str: Base64 encoded JPEG string.
+        """
         if cv2 is None: return ""
         _, buffer = cv2.imencode('.jpg', image)
         return base64.b64encode(buffer).decode('utf-8')

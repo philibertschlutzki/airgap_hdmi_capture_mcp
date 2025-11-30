@@ -2,22 +2,42 @@ import time
 import logging
 
 class LayoutDetector:
+    """
+    Automates the detection of the target system's keyboard layout (e.g., US vs DE).
+
+    This works by injecting characters that have different positions on different layouts
+    (like 'z' and 'y') and observing what character actually appears on the screen via OCR.
+    """
     def __init__(self, injector, capture_func):
+        """
+        Args:
+            injector (KeyInjector): The instance used to type keys.
+            capture_func (Callable): A function that captures the screen text (OCR).
+        """
         self.injector = injector
         self.capture_func = capture_func
 
     def detect(self) -> str:
         """
-        Attempts to detect the keyboard layout by typing specific characters
-        and checking the OCR output.
+        Runs the layout detection heuristic.
+
+        Heuristic:
+        - Type 'z'.
+        - If 'z' appears: Likely US or UK (QWERTY).
+        - If 'y' appears: Likely German (QWERTZ) because the 'z' key is in the 'y' position on US hardware maps.
+
+        Returns:
+            str: The detected layout code ("US", "DE", or "UNKNOWN").
         """
+<<<<<<< HEAD
         print("Starting Keyboard Layout Detection...")
+=======
+        logging.info("Starting Keyboard Layout Detection...")
+>>>>>>> refs/remotes/origin/feature/docs-and-verification
 
         # We need to type characters that vary significantly between layouts.
         # US vs DE:
         # z <-> y
-        # - <-> / (slash key)
-        # @ (Shift+2 on US, AltGr+Q on DE)
 
         # Test 1: Check Y/Z (QWERTZ vs QWERTY)
         # We send 'z'.
@@ -29,32 +49,57 @@ class LayoutDetector:
         time.sleep(1.0)
 
         text = self.capture_func(mode="ocr_text")
+<<<<<<< HEAD
         print(f"DEBUG: Layout Detect 'z' -> Saw '{text}'")
+=======
+        logging.debug(f"Layout Detect 'z' -> Saw '{text}'")
+>>>>>>> refs/remotes/origin/feature/docs-and-verification
 
         if 'y' in text.lower():
             # We sent 'z' (pos Z), but got 'y'.
             # This implies the target interprets that position as 'y'.
             # That matches QWERTZ (DE).
+<<<<<<< HEAD
             print("Detected Layout: DE (QWERTZ)")
             return "DE"
         elif 'z' in text.lower():
             print("Detected Layout: US/UK (QWERTY)")
+=======
+            logging.info("Detected Layout: DE (QWERTZ)")
+            return "DE"
+        elif 'z' in text.lower():
+            logging.info("Detected Layout: US/UK (QWERTY)")
+>>>>>>> refs/remotes/origin/feature/docs-and-verification
             return "US" # Could be UK too
 
         # Fallback or inconclusive
         return "UNKNOWN"
 
     def apply_layout(self, layout_code: str):
+        """
+        Applies the detected layout to the KeyInjector.
+
+        Args:
+            layout_code (str): The code returned by detect() ("US", "DE").
+        """
         if layout_code == "DE":
             from .hid import GermanISO
+<<<<<<< HEAD
             print("Applying GermanISO Layout")
             self.injector.layout = GermanISO()
         elif layout_code == "US":
-             # We need a US Layout class. For now, assuming default mapping in hid.py needs adjustment
-             # if we only have GermanISO implemented.
-             # Wait, `hid.py` has a base `Layout` class. We should implement `USLayout`.
              from .hid import USLayout
              print("Applying US Layout")
              self.injector.layout = USLayout()
         else:
             print(f"Unknown layout code {layout_code}, keeping current.")
+=======
+            logging.info("Applying GermanISO Layout")
+            self.injector.layout = GermanISO()
+        elif layout_code == "US":
+             from .hid import USLayout
+             logging.info("Applying US Layout")
+             self.injector.layout = USLayout()
+        else:
+            logging.warning(f"Unknown layout code {layout_code}, keeping current.")
+>>>>>>> refs/remotes/origin/feature/docs-and-verification

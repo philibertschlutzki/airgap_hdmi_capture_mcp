@@ -30,6 +30,7 @@ This project implements the [Model Context Protocol (MCP)](https://modelcontextp
 │   └── tests/              # Unit tests
 ├── interface_unit/         # Configuration for the Raspberry Pi Zero
 │   ├── setup_gadget.sh     # Script to enable USB HID Gadget
+│   ├── verify_pi_setup.sh  # Script to verify Pi configuration
 │   └── usb_gadget.service  # Systemd service for auto-start
 └── demo_simulation.py      # Script to demonstrate logic without hardware
 ```
@@ -56,7 +57,13 @@ The Pi Zero converts commands from the Control Node into USB Keystrokes.
     sudo systemctl enable usb_gadget.service
     sudo systemctl start usb_gadget.service
     ```
-5.  Connect the Pi's **USB Data Port** to the Target PC.
+5.  **Verify Setup:**
+    Use the provided verification script to ensure everything is correct:
+    ```bash
+    chmod +x interface_unit/verify_pi_setup.sh
+    ./interface_unit/verify_pi_setup.sh
+    ```
+6.  Connect the Pi's **USB Data Port** to the Target PC.
 
 ### 2. Control Node Setup
 The Control Node runs the intelligence.

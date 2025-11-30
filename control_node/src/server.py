@@ -33,6 +33,22 @@ mcp = FastMCP("Vision-HID-Bridge")
 # --- Implementation Logic (Testable) ---
 
 def capture_screen_impl(mode: str = "ocr_text", region: Optional[List[int]] = None) -> str:
+    """
+    Core implementation for capturing screen content.
+
+    This function interacts with the hardware (OpenCV) to grab a frame, optionally crops it,
+    and then processes it based on the requested mode.
+
+    Args:
+        mode (str): Determines the output format.
+            - "raw_base64": Returns the image frame encoded as a Base64 JPEG string.
+            - "ocr_text": Returns the text extracted from the image using Tesseract OCR.
+        region (Optional[List[int]]): A list of 4 integers [x, y, width, height] defining
+            a sub-region of the screen to capture. Useful for focusing on specific UI elements.
+
+    Returns:
+        str: The requested data (text or base64 string) or an error message.
+    """
     global latest_screen_base64
 
     try:
@@ -81,6 +97,21 @@ def capture_screen_impl(mode: str = "ocr_text", region: Optional[List[int]] = No
         return f"Error capturing screen: {str(e)}"
 
 def inject_keystrokes_impl(text: str, delay_ms: int = 20, verify: bool = True) -> str:
+    """
+    Core implementation for typing text.
+
+    Simulates human-like typing by adding small random delays between keystrokes.
+    Can optionally verify if the text appeared on the screen using OCR.
+
+    Args:
+        text (str): The string to type.
+        delay_ms (int): Mean delay between keystrokes in milliseconds.
+        verify (bool): If True, the system will type, wait, capture the screen, and check
+                       if the typed text is present. If not, it retries up to 3 times.
+
+    Returns:
+        str: Success message or error details.
+    """
     try:
         delay_sec = float(delay_ms) / 1000.0
         delay_std = delay_sec * 0.3
@@ -124,6 +155,16 @@ def inject_keystrokes_impl(text: str, delay_ms: int = 20, verify: bool = True) -
         return f"Error injecting keystrokes: {str(e)}"
 
 def execute_shortcut_impl(modifiers: List[str], key: str) -> str:
+    """
+    Core implementation for keyboard shortcuts.
+
+    Args:
+        modifiers (List[str]): Keys to hold down (e.g., ['CTRL', 'ALT']).
+        key (str): The main key to press (e.g., 'DELETE').
+
+    Returns:
+        str: Status message.
+    """
     try:
         injector.press_sequence(modifiers, key)
         return f"Executed shortcut: {'+'.join(modifiers)} + {key}"
@@ -139,6 +180,19 @@ def get_ocr_logs_impl() -> str:
 def scan_directory_impl(path: str) -> str:
     """
     Active tool to scan a directory and save structure to JSON.
+
+    This function:
+    1. Injects the `dir` command into the target system.
+    2. Waits for the command to finish.
+    3. Captures the screen output via OCR.
+    4. Parses the text to identify files and directories.
+    5. Saves the structure as a JSON file in the `logs/` directory.
+
+    Args:
+        path (str): The directory to scan.
+
+    Returns:
+        str: Status message indicating success and the path to the saved JSON file.
     """
     try:
         # 1. Inject Command
